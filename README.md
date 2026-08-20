@@ -31,7 +31,7 @@ A complete Google Chrome extension that captures and downloads a screenshot of a
 1. **Trigger**: User clicks "Capture Full Page" in the popup.
 2. **Setup**: The background script injects `content.js` and creates `offscreen.html`.
 3. **Measure & Prepare**: The content script calculates the full page height, hides scrollbars, hides fixed/sticky elements, and saves the original scroll position.
-4. **Scroll & Capture**: 
+4. **Scroll & Capture**:
    - The page is scrolled vertically in viewport-sized increments.
    - After each scroll, it waits 600ms (to allow lazy-loaded content to render and respect Chrome's capture rate limit).
    - `chrome.tabs.captureVisibleTab` takes a screenshot of the visible area.
@@ -73,6 +73,7 @@ A complete Google Chrome extension that captures and downloads a screenshot of a
 ## Submitting to the Chrome Web Store
 
 Before packaging for the Chrome Web Store:
+
 1. **Convert Icons**: The Chrome Web Store requires PNG icons. Convert `icon.svg` to PNG format at exactly 16x16, 48x48, and 128x128 pixels, and update the filenames in `manifest.json`.
 2. **ZIP the Files**: Select all project files and compress them into a `.zip` archive.
 3. **Developer Dashboard**: Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole) and upload your `.zip` file.

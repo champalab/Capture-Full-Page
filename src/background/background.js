@@ -93,7 +93,7 @@ async function startCapture(tabId) {
     await chrome.storage.local.set({ capturedImage: finalDataUrl });
 
     await chrome.tabs.create({
-      url: chrome.runtime.getURL('src/result/result.html')
+      url: chrome.runtime.getURL('src/pages/result/index.html')
     });
 
     // 8. Cleanup
