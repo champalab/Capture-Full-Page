@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Capture Full Page",
+  "version": "1.0.0",
+  "description": "Captures and downloads a screenshot of an entire webpage.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "offscreen"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.svg",
+      "48": "icon.svg",
+      "128": "icon.svg"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon.svg",
+    "48": "icon.svg",
+    "128": "icon.svg"
+  }
+}

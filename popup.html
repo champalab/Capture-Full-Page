@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capture Full Page</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Capture Full Page</h1>
+      <p class="subtitle" data-lang-en="Take a full-page screenshot" data-lang-lo="ຖ່າຍຮູບເຕັມໜ້າຈໍ">Take a full-page screenshot</p>
+    </header>
+
+    <main>
+      <div class="options">
+        <label for="formatSelect">
+          <span data-lang-en="Format:" data-lang-lo="ຮູບແບບ:">Format:</span>
+        </label>
+        <select id="formatSelect">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+        </select>
+      </div>
+
+      <div class="language-toggle">
+        <label>
+          <input type="checkbox" id="langToggle">
+          <span class="toggle-label">Switch to Lao (ປ່ຽນເປັນພາສາລາວ)</span>
+        </label>
+      </div>
+
+      <button id="captureBtn" class="primary-btn">
+        <span class="btn-text" data-lang-en="Capture Full Page" data-lang-lo="ຖ່າຍຮູບເຕັມໜ້າ">Capture Full Page</span>
+      </button>
+
+      <div id="progressContainer" class="hidden">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <p id="progressText">0%</p>
+      </div>
+
+      <div id="statusMessage" class="status-message hidden"></div>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
