@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screenshot Result</title>
+  <link rel="stylesheet" href="result.css">
+</head>
+<body>
+  <div class="toolbar">
+    <h1>Capture Full Page</h1>
+    <div class="actions">
+      <button id="downloadPngBtn" class="btn primary-btn">Download PNG</button>
+      <button id="downloadPdfBtn" class="btn secondary-btn">Download PDF</button>
+    </div>
+  </div>
+
+  <main class="preview-container">
+    <div id="loading" class="loading">Loading image...</div>
+    <img id="previewImage" alt="Captured Screenshot" style="display: none;">
+  </main>
+
+  <script src="pdf-generator.js"></script>
+  <script src="result.js"></script>
+</body>
+</html>

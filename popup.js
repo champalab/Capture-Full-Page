@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   const captureBtn = document.getElementById('captureBtn');
-  const formatSelect = document.getElementById('formatSelect');
-  const langToggle = document.getElementById('langToggle');
   const progressContainer = document.getElementById('progressContainer');
   const progressFill = document.getElementById('progressFill');
   const progressText = document.getElementById('progressText');
@@ -9,24 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let currentLang = 'en';
 
-  // Language toggling
-  langToggle.addEventListener('change', (e) => {
-    currentLang = e.target.checked ? 'lo' : 'en';
-    updateLanguage();
-  });
-
-  function updateLanguage() {
-    document.querySelectorAll('[data-lang-en]').forEach(el => {
-      el.textContent = el.getAttribute(`data-lang-${currentLang}`);
-    });
-  }
-
   // Handle capture click
   captureBtn.addEventListener('click', async () => {
     // Reset UI
     captureBtn.disabled = true;
-    formatSelect.disabled = true;
-    langToggle.disabled = true;
     progressContainer.classList.remove('hidden');
     statusMessage.classList.add('hidden');
     statusMessage.className = 'status-message hidden';
@@ -34,18 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
     progressText.textContent = '0%';
 
     try {
-      const format = formatSelect.value;
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
       if (!tab) {
         throw new Error('No active tab found.');
       }
 
+      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://')) {
+        throw new Error(currentLang === 'en' ? 'Cannot capture restricted browser pages (chrome://).' : 'ບໍ່ສາມາດຖ່າຍຮູບໜ້າເວັບຂອງບຣາວເຊີ (chrome://) ໄດ້ເນື່ອງຈາກລະບົບຄວາມປອດໄພ.');
+      }
+
       // Start capture process in background script
       chrome.runtime.sendMessage({ 
         action: 'START_CAPTURE', 
-        tabId: tab.id, 
-        format: format 
+        tabId: tab.id
       });
 
     } catch (error) {
@@ -91,7 +77,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetButtons() {
     captureBtn.disabled = false;
-    formatSelect.disabled = false;
-    langToggle.disabled = false;
   }
 });

@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     
     isCapturing = true;
-    startCapture(message.tabId, message.format).catch(error => {
+    startCapture(message.tabId).catch(error => {
       console.error('Capture failed:', error);
       chrome.runtime.sendMessage({ action: 'CAPTURE_ERROR', error: error.message || 'Unknown error occurred.' });
       isCapturing = false;
@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function startCapture(tabId, format) {
+async function startCapture(tabId) {
   try {
     // 1. Ensure offscreen document is ready
     await setupOffscreenDocument(OFFSCREEN_DOCUMENT_PATH);
@@ -37,8 +37,7 @@ async function startCapture(tabId, format) {
     await chrome.runtime.sendMessage({
       action: 'INIT_CANVAS',
       width: pageInfo.fullWidth,
-      height: pageInfo.fullHeight,
-      devicePixelRatio: pageInfo.devicePixelRatio
+      height: pageInfo.fullHeight
     });
 
     // 5. Start scrolling and capturing
@@ -70,8 +69,7 @@ async function startCapture(tabId, format) {
         x: 0,
         y: actualY,
         width: viewWidth,
-        height: viewHeight,
-        devicePixelRatio: pageInfo.devicePixelRatio
+        height: viewHeight
       });
 
       captureCount++;
@@ -86,20 +84,16 @@ async function startCapture(tabId, format) {
     // 6. Generate final image from offscreen
     const finalDataUrl = await chrome.runtime.sendMessage({
       action: 'GET_FINAL_IMAGE',
-      format: format
+      format: 'png'
     });
 
     if (!finalDataUrl) throw new Error('Failed to generate final image.');
 
-    // 7. Download the image
-    const timestamp = getTimestamp();
-    const extension = format === 'jpeg' ? 'jpg' : 'png';
-    const filename = `capture-full-page-${timestamp}.${extension}`;
+    // 7. Store the image and open result page
+    await chrome.storage.local.set({ capturedImage: finalDataUrl });
 
-    await chrome.downloads.download({
-      url: finalDataUrl,
-      filename: filename,
-      saveAs: false
+    await chrome.tabs.create({
+      url: chrome.runtime.getURL('result.html')
     });
 
     // 8. Cleanup
@@ -138,7 +132,7 @@ async function setupOffscreenDocument(path) {
 
   await chrome.offscreen.createDocument({
     url: path,
-    reasons: ['DOM_PARSER', 'BLOB'],
+    reasons: ['DOM_PARSER', 'BLOBS'],
     justification: 'Stitch images using canvas'
   });
 }

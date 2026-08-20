@@ -1,23 +1,19 @@
 let canvas;
 let ctx;
-let targetWidth = 0;
-let targetHeight = 0;
-let dpr = 1;
+let targetLogicalWidth = 0;
+let targetLogicalHeight = 0;
+let scale = 1;
+let isCanvasInitialized = false;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'INIT_CANVAS') {
-    targetWidth = message.width;
-    targetHeight = message.height;
-    dpr = message.devicePixelRatio;
-
+    targetLogicalWidth = message.width;
+    targetLogicalHeight = message.height;
+    isCanvasInitialized = false;
+    
     canvas = document.getElementById('canvas');
-    // Scale canvas logically by DPR
-    canvas.width = targetWidth * dpr;
-    canvas.height = targetHeight * dpr;
     ctx = canvas.getContext('2d');
     
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     sendResponse({ success: true });
     return false;
   } 
@@ -51,19 +47,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function stitchImage({ dataUrl, x, y, width, height, devicePixelRatio }) {
+async function stitchImage({ dataUrl, x, y, width, height }) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      // Draw image onto canvas at the correct offset
-      // Coordinates need to be scaled by devicePixelRatio
-      const sourceY = y * devicePixelRatio;
+      if (!isCanvasInitialized) {
+        // Calculate exact scale based on the actual pixel width of the screenshot
+        scale = img.width / width;
+        canvas.width = Math.round(targetLogicalWidth * scale);
+        canvas.height = Math.round(targetLogicalHeight * scale);
+        
+        // Prevent image smoothing when drawing (helps with crispness)
+        ctx.imageSmoothingEnabled = false;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        isCanvasInitialized = true;
+      }
       
-      // If this is the last piece, it might overlap the previous piece.
-      // E.g., page height 1500, viewport 1000. 
-      // First shot at y=0. Second shot at y=500.
-      // We just draw it at y=500. It overrides the bottom half of the first shot, which is correct!
-      ctx.drawImage(img, 0, sourceY);
+      // Round the Y coordinate to the nearest integer to prevent sub-pixel antialiasing (blur)
+      const sourceY = Math.round(y * scale);
+      
+      // We must also round the source dimensions to prevent fractional stretching
+      const sourceX = 0;
+      const sourceWidth = Math.round(width * scale);
+      const sourceHeight = Math.round(height * scale);
+      
+      // Use the 9-argument drawImage to ensure exact 1:1 pixel mapping
+      ctx.drawImage(img, 
+        0, 0, img.width, img.height, 
+        sourceX, sourceY, img.width, img.height
+      );
+      
       resolve();
     };
     img.onerror = () => reject(new Error('Failed to load image section'));
