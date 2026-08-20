@@ -1,4 +1,4 @@
-const OFFSCREEN_DOCUMENT_PATH = 'offscreen.html';
+const OFFSCREEN_DOCUMENT_PATH = 'src/offscreen/offscreen.html';
 
 let isCapturing = false;
 
@@ -26,7 +26,7 @@ async function startCapture(tabId) {
     // 2. Inject content script if not already present
     await chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ['content.js']
+      files: ['src/content/content.js']
     });
 
     // 3. Get page dimensions from content script
@@ -93,7 +93,7 @@ async function startCapture(tabId) {
     await chrome.storage.local.set({ capturedImage: finalDataUrl });
 
     await chrome.tabs.create({
-      url: chrome.runtime.getURL('result.html')
+      url: chrome.runtime.getURL('src/result/result.html')
     });
 
     // 8. Cleanup

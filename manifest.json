@@ -12,19 +12,19 @@
     "unlimitedStorage"
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "src/pages/popup/popup.html",
     "default_icon": {
-      "16": "icon.svg",
-      "48": "icon.svg",
-      "128": "icon.svg"
+      "16": "src/assets/icon.svg",
+      "48": "src/assets/icon.svg",
+      "128": "src/assets/icon.svg"
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/background.js"
   },
   "icons": {
-    "16": "icon.svg",
-    "48": "icon.svg",
-    "128": "icon.svg"
+    "16": "src/assets/icon.svg",
+    "48": "src/assets/icon.svg",
+    "128": "src/assets/icon.svg"
   }
 }
