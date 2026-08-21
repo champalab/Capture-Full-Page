@@ -3,8 +3,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loadingElement = document.getElementById('loading');
   const downloadPngBtn = document.getElementById('downloadPngBtn');
   const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+  const cropBtn = document.getElementById('cropBtn');
+  const applyCropBtn = document.getElementById('applyCropBtn');
+  const cancelCropBtn = document.getElementById('cancelCropBtn');
   
   let imageDataUrl = null;
+  let cropper = null;
 
   try {
     const data = await chrome.storage.local.get('capturedImage');
@@ -13,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       imgElement.src = imageDataUrl;
       imgElement.style.display = 'block';
       loadingElement.style.display = 'none';
+      cropBtn.style.display = 'inline-flex';
       
       // We can clear storage if we don't need it persistent, 
       // but let's keep it until they close the tab or capture a new one
@@ -71,6 +76,80 @@ document.addEventListener('DOMContentLoaded', async () => {
         downloadPdfBtn.disabled = false;
       }
     }, 50);
+  });
+
+  cropBtn.addEventListener('click', () => {
+    if (!imageDataUrl) return;
+    
+    cropBtn.style.display = 'none';
+    applyCropBtn.style.display = 'inline-flex';
+    cancelCropBtn.style.display = 'inline-flex';
+    
+    // Hide download buttons during crop
+    const aside = document.querySelector('.floating-action-bar');
+    if (aside) aside.style.display = 'none';
+    
+    cropper = new Cropper(imgElement, {
+      viewMode: 1,
+      dragMode: 'crop',
+      autoCropArea: 0.8,
+      restore: false,
+      guides: true,
+      center: true,
+      highlight: false,
+      cropBoxMovable: true,
+      cropBoxResizable: true,
+      toggleDragModeOnDblclick: false,
+    });
+  });
+
+  applyCropBtn.addEventListener('click', () => {
+    if (!cropper) return;
+    
+    // Get cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+    
+    // Update image data url
+    imageDataUrl = canvas.toDataURL('image/png');
+    
+    // Cleanup cropper
+    cropper.destroy();
+    cropper = null;
+    
+    // Update image src
+    imgElement.src = imageDataUrl;
+    
+    // Reset buttons
+    cropBtn.style.display = 'inline-flex';
+    applyCropBtn.style.display = 'none';
+    cancelCropBtn.style.display = 'none';
+    
+    const aside = document.querySelector('.floating-action-bar');
+    if (aside) aside.style.display = 'flex';
+  });
+
+  cancelCropBtn.addEventListener('click', () => {
+    if (!cropper) return;
+    
+    // Cleanup cropper
+    cropper.destroy();
+    cropper = null;
+    
+    // Restore original image data url if it was replaced by cropper
+    // Not needed since we didn't change imageDataUrl on cancel, 
+    // just need to ensure src is correct
+    imgElement.src = imageDataUrl;
+    
+    // Reset buttons
+    cropBtn.style.display = 'inline-flex';
+    applyCropBtn.style.display = 'none';
+    cancelCropBtn.style.display = 'none';
+    
+    const aside = document.querySelector('.floating-action-bar');
+    if (aside) aside.style.display = 'flex';
   });
 });
 
